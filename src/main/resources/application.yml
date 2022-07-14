@@ -1,2 +1,25 @@
 server:
   port: 9000
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,application/xhtml+xml,text/html,text/xml,text/plain
+  servlet:
+    context-path: /wechat
+spring:
+  application:
+    name: wechat
+  jackson:
+    default-property-inclusion: NON_NULL
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    timeout: 3000
+    database: 0
+    lettuce:
+      pool:
+        min-idle: 1
+        max-idle: 6
+        max-active: 10
+        max-wait: 1000
+      shutdown-timeout: 200
