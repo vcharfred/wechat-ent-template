@@ -24,7 +24,46 @@ public enum ApiCode {
     /**
      * 参数不正确
      */
-    PARAM_ERROR("W002", "参数不正确", HttpStatus.BAD_REQUEST);
+    PARAM_ERROR("W002", "参数不正确", HttpStatus.BAD_REQUEST),
+
+    /**
+     * 企业微信 签名验证错误
+     */
+    ENT_WX_Validate_Signature_Error("W003", "签名验证错误", HttpStatus.BAD_REQUEST),
+
+    /**
+     * 企业微信 xml解析失败
+     */
+    ENT_WX_PARSE_XML_ERROR("W004", "xml解析失败", HttpStatus.BAD_REQUEST),
+
+    ComputeSignatureError("W005", "sha加密生成签名失败", HttpStatus.BAD_REQUEST),
+
+    IllegalAesKey("W006", "SymmetricKey非法", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    ValidateCorpidError("", ""),
+    ;
+    /**
+     *
+
+     case :
+     return "";
+     case :
+     return "";
+     case :
+     return "corpid校验失败";
+     case EncryptAESError:
+     return "aes加密失败";
+     case DecryptAESError:
+     return "aes解密失败";
+     case IllegalBuffer:
+     return "解密后得到的buffer非法";
+     //		case EncodeBase64Error:
+     //			return "base64加密错误";
+     //		case DecodeBase64Error:
+     //			return "base64解密错误";
+     //		case GenReturnXmlError:
+     //			return "xml生成失败";
+     */
 
 
     private final String code;
