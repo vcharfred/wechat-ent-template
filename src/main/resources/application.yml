@@ -23,3 +23,7 @@ spring:
         max-active: 10
         max-wait: 1000
       shutdown-timeout: 200
+wx:
+  ent:
+    suites:
+      - suiteId: ""

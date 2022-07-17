@@ -1,6 +1,9 @@
 package top.vchar.wechat.service;
 
 import org.springframework.stereotype.Service;
+import top.vchar.wechat.bean.EntWxSuite;
+import top.vchar.wechat.config.EntWxSuiteConfig;
+import top.vchar.wechat.util.WxBizMsgCrypt;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,9 +17,28 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
 
+    private final EntWxSuiteConfig entWxSuiteConfig;
+
+    public EntWxSuiteServiceImpl(EntWxSuiteConfig entWxSuiteConfig) {
+        this.entWxSuiteConfig = entWxSuiteConfig;
+    }
+
+    /**
+     * 回调验证
+     * @param suitId 应用ID
+     * @param request 请求对象
+     * @return 返回需要返回的字符串
+     */
     @Override
     public String verifyCallback(String suitId, HttpServletRequest request) {
-        return null;
+        String msgSignature = request.getParameter("msg_signature");
+        String timestamp = request.getParameter("timestamp");
+        String nonce = request.getParameter("nonce");
+        String echoStr = request.getParameter("echostr").replace(" ", "=");
+
+        EntWxSuite entWxSuite = entWxSuiteConfig.getEntWxSuite(suitId);
+        WxBizMsgCrypt wxBizMsgCrypt = new WxBizMsgCrypt(entWxSuite);
+        return wxBizMsgCrypt.verifyUrl(msgSignature, timestamp, nonce, echoStr);
     }
 
     @Override

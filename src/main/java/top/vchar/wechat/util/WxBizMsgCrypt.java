@@ -1,11 +1,16 @@
 package top.vchar.wechat.util;
 
+import lombok.extern.slf4j.Slf4j;
+import top.vchar.wechat.bean.EntWxSuite;
 import top.vchar.wechat.config.BizException;
+import top.vchar.wechat.enums.ApiCode;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Random;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.*;
 
 /**
  * <p> 企业微信工具包 </p>
@@ -14,6 +19,7 @@ import java.util.Random;
  * @version 1.0
  * @create_date 2022/7/15
  */
+@Slf4j
 public class WxBizMsgCrypt {
 
     /**
@@ -42,6 +48,10 @@ public class WxBizMsgCrypt {
         this.token = token;
         this.aesKey = Base64.getDecoder().decode(encodingAesKey+"=");
         this.receiveId = receiveId;
+    }
+
+    public WxBizMsgCrypt(EntWxSuite entWxSuite){
+        this(entWxSuite.getToken(), entWxSuite.getEncodingAesKey(), entWxSuite.getReceiveId());
     }
 
     /**
@@ -88,14 +98,13 @@ public class WxBizMsgCrypt {
      *
      * @param text 需要加密的明文
      * @return 加密后base64编码的字符串
-     * @throws AesException aes加密失败
      */
-    public String encrypt(String randomStr, String text) throws AesException {
+    public String encrypt(String randomStr, String text) {
         ByteGroup byteCollector = new ByteGroup();
-        byte[] randomStrBytes = randomStr.getBytes(CHARSET);
-        byte[] textBytes = text.getBytes(CHARSET);
+        byte[] randomStrBytes = randomStr.getBytes(StandardCharsets.UTF_8);
+        byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
         byte[] networkBytesOrder = getNetworkBytesOrder(textBytes.length);
-        byte[] receiveidBytes = receiveid.getBytes(CHARSET);
+        byte[] receiveidBytes = receiveId.getBytes(StandardCharsets.UTF_8);
 
         // randomStr + networkBytesOrder + text + receiveid
         byteCollector.addBytes(randomStrBytes);
@@ -121,12 +130,9 @@ public class WxBizMsgCrypt {
             byte[] encrypted = cipher.doFinal(unencrypted);
 
             // 使用BASE64对加密后的字符串进行编码
-            String base64Encrypted = base64.encodeToString(encrypted);
-
-            return base64Encrypted;
+            return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new AesException(AesException.EncryptAESError);
+            throw new BizException(ApiCode.ENT_WX_ENCRYPT_AES_ERROR, e);
         }
     }
 
@@ -135,28 +141,26 @@ public class WxBizMsgCrypt {
      *
      * @param text 需要解密的密文
      * @return 解密得到的明文
-     * @throws AesException aes解密失败
      */
-    String decrypt(String text) throws AesException {
+    public String decrypt(String text){
         byte[] original;
         try {
             // 设置解密模式为AES的CBC模式
             Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-            SecretKeySpec key_spec = new SecretKeySpec(aesKey, "AES");
+            SecretKeySpec keySpec = new SecretKeySpec(aesKey, "AES");
             IvParameterSpec iv = new IvParameterSpec(Arrays.copyOfRange(aesKey, 0, 16));
-            cipher.init(Cipher.DECRYPT_MODE, key_spec, iv);
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, iv);
 
             // 使用BASE64对密文进行解码
-            byte[] encrypted = Base64.decodeBase64(text);
+            byte[] encrypted = Base64.getDecoder().decode(text);
 
             // 解密
             original = cipher.doFinal(encrypted);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new AesException(AesException.DecryptAESError);
+            throw new BizException(ApiCode.ENT_WX_DECRYPT_AES_ERROR, e);
         }
 
-        String xmlContent, from_receiveid;
+        String xmlContent, fromReceiveId;
         try {
             // 去除补位字符
             byte[] bytes = PKCS7Encoder.decode(original);
@@ -166,17 +170,15 @@ public class WxBizMsgCrypt {
 
             int xmlLength = recoverNetworkBytesOrder(networkOrder);
 
-            xmlContent = new String(Arrays.copyOfRange(bytes, 20, 20 + xmlLength), CHARSET);
-            from_receiveid = new String(Arrays.copyOfRange(bytes, 20 + xmlLength, bytes.length),
-                    CHARSET);
+            xmlContent = new String(Arrays.copyOfRange(bytes, 20, 20 + xmlLength), StandardCharsets.UTF_8);
+            fromReceiveId = new String(Arrays.copyOfRange(bytes, 20 + xmlLength, bytes.length), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new AesException(AesException.IllegalBuffer);
+            throw new BizException(ApiCode.ENT_WX_ILLEGAL_BUFFER, e);
         }
 
-        // receiveid不相同的情况
-        if (!from_receiveid.equals(receiveid)) {
-            throw new AesException(AesException.ValidateCorpidError);
+        // receiveId不相同的情况
+        if (!fromReceiveId.equals(receiveId)) {
+            throw new BizException(ApiCode.ENT_WX_VALIDATE_CORPID_ERROR);
         }
         return xmlContent;
 
@@ -195,23 +197,19 @@ public class WxBizMsgCrypt {
      * @param nonce 随机串，可以自己生成，也可以用URL参数的nonce
      *
      * @return 加密后的可以直接回复用户的密文，包括msg_signature, timestamp, nonce, encrypt的xml格式的字符串
-     * @throws AesException 执行失败，请查看该异常的错误码和具体的错误信息
      */
-    public String EncryptMsg(String replyMsg, String timeStamp, String nonce) throws AesException {
+    public String encryptMsg(String replyMsg, String timeStamp, String nonce) {
         // 加密
         String encrypt = encrypt(getRandomStr(), replyMsg);
 
         // 生成安全签名
-        if (timeStamp == "") {
+        if (Objects.equals(timeStamp, "")) {
             timeStamp = Long.toString(System.currentTimeMillis());
         }
 
-        String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
-
-        // System.out.println("发送给平台的签名是: " + signature[1].toString());
+        String signature = getSHA1(token, timeStamp, nonce, encrypt);
         // 生成发送的xml
-        String result = XMLParse.generate(encrypt, signature, timeStamp, nonce);
-        return result;
+        return XMLParse.generate(encrypt, signature, timeStamp, nonce);
     }
 
     /**
@@ -228,52 +226,85 @@ public class WxBizMsgCrypt {
      * @param postData 密文，对应POST请求的数据
      *
      * @return 解密后的原文
-     * @throws AesException 执行失败，请查看该异常的错误码和具体的错误信息
      */
-    public String DecryptMsg(String msgSignature, String timeStamp, String nonce, String postData)
-            throws AesException {
+    public String decryptMsg(String msgSignature, String timeStamp, String nonce, String postData) {
 
         // 密钥，公众账号的app secret
         // 提取密文
         Object[] encrypt = XMLParse.extract(postData);
 
         // 验证安全签名
-        String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt[1].toString());
+        String signature = getSHA1(token, timeStamp, nonce, encrypt[1].toString());
 
         // 和URL中的签名比较是否相等
-        // System.out.println("第三方收到URL中的签名：" + msg_sign);
-        // System.out.println("第三方校验签名：" + signature);
         if (!signature.equals(msgSignature)) {
-            throw new AesException(AesException.ValidateSignatureError);
+            throw new BizException(ApiCode.ENT_WX_VALIDATE_SIGNATURE_ERROR);
         }
 
         // 解密
-        String result = decrypt(encrypt[1].toString());
-        return result;
+        return decrypt(encrypt[1].toString());
     }
 
     /**
      * 验证URL
+     *
      * @param msgSignature 签名串，对应URL参数的msg_signature
      * @param timeStamp 时间戳，对应URL参数的timestamp
      * @param nonce 随机串，对应URL参数的nonce
      * @param echoStr 随机串，对应URL参数的echostr
-     *
      * @return 解密之后的echostr
      */
-    public String VerifyURL(String msgSignature, String timeStamp, String nonce, String echoStr) {
-        String signature = SHA1.getSHA1(token, timeStamp, nonce, echoStr);
+    public String verifyUrl(String msgSignature, String timeStamp, String nonce, String echoStr) {
+        String signature = getSHA1(token, timeStamp, nonce, echoStr);
 
         if (!signature.equals(msgSignature)) {
-            throw new BizException(AesException.ValidateSignatureError);
+            throw new BizException(ApiCode.ENT_WX_VALIDATE_SIGNATURE_ERROR);
         }
 
-        String result = decrypt(echoStr);
-        return result;
+        return decrypt(echoStr);
+    }
+
+    /**
+     * 用SHA1算法生成安全签名
+     * @param token 票据
+     * @param timestamp 时间戳
+     * @param nonce 随机字符串
+     * @param encrypt 密文
+     * @return 安全签名
+     */
+    public static String getSHA1(String token, String timestamp, String nonce, String encrypt) {
+        try {
+            String[] array = new String[] { token, timestamp, nonce, encrypt };
+            StringBuilder sb = new StringBuilder();
+            // 字符串排序
+            Arrays.sort(array);
+            for (int i = 0; i < 4; i++) {
+                sb.append(array[i]);
+            }
+            String str = sb.toString();
+            // SHA1签名生成
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            md.update(str.getBytes());
+            byte[] digest = md.digest();
+
+            StringBuilder hexStr = new StringBuilder();
+            String shaHex = "";
+            for (byte b : digest) {
+                shaHex = Integer.toHexString(b & 0xFF);
+                if (shaHex.length() < 2) {
+                    hexStr.append(0);
+                }
+                hexStr.append(shaHex);
+            }
+            return hexStr.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BizException(ApiCode.ENT_WX_COMPUTE_SIGNATURE_ERROR);
+        }
     }
 
     static class ByteGroup {
-        List<Byte> byteContainer = new ArrayList<Byte>();
+        List<Byte> byteContainer = new ArrayList<>();
         public byte[] toBytes() {
             byte[] bytes = new byte[byteContainer.size()];
             for (int i = 0; i < byteContainer.size(); i++) {

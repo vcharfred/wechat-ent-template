@@ -29,41 +29,48 @@ public enum ApiCode {
     /**
      * 企业微信 签名验证错误
      */
-    ENT_WX_Validate_Signature_Error("W003", "签名验证错误", HttpStatus.BAD_REQUEST),
-
+    ENT_WX_VALIDATE_SIGNATURE_ERROR("W003", "签名验证错误", HttpStatus.BAD_REQUEST),
     /**
      * 企业微信 xml解析失败
      */
     ENT_WX_PARSE_XML_ERROR("W004", "xml解析失败", HttpStatus.BAD_REQUEST),
-
-    ComputeSignatureError("W005", "sha加密生成签名失败", HttpStatus.BAD_REQUEST),
-
-    IllegalAesKey("W006", "SymmetricKey非法", HttpStatus.INTERNAL_SERVER_ERROR),
-
-    ValidateCorpidError("", ""),
-    ;
     /**
-     *
-
-     case :
-     return "";
-     case :
-     return "";
-     case :
-     return "corpid校验失败";
-     case EncryptAESError:
-     return "aes加密失败";
-     case DecryptAESError:
-     return "aes解密失败";
-     case IllegalBuffer:
-     return "解密后得到的buffer非法";
-     //		case EncodeBase64Error:
-     //			return "base64加密错误";
-     //		case DecodeBase64Error:
-     //			return "base64解密错误";
-     //		case GenReturnXmlError:
-     //			return "xml生成失败";
+     * 企业微信 sha加密生成签名失败
      */
+    ENT_WX_COMPUTE_SIGNATURE_ERROR("W005", "sha加密生成签名失败", HttpStatus.BAD_REQUEST),
+    /**
+     * 企业微信 SymmetricKey非法
+     */
+    ENT_WX_ILLEGAL_AES_KEY("W006", "SymmetricKey非法", HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * 企业微信 corpid校验失败
+     */
+    ENT_WX_VALIDATE_CORPID_ERROR("W007", "corpid校验失败", HttpStatus.BAD_REQUEST),
+    /**
+     * 企业微信 aes加密失败
+     */
+    ENT_WX_ENCRYPT_AES_ERROR("W008", "aes加密失败", HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * 企业微信 aes解密失败
+     */
+    ENT_WX_DECRYPT_AES_ERROR("W009", "aes解密失败", HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * 企业微信 解密后得到的buffer非法
+     */
+    ENT_WX_ILLEGAL_BUFFER("W010", "解密后得到的buffer非法", HttpStatus.BAD_REQUEST),
+    /**
+     * 企业微信 base64加密错误
+     */
+    ENT_WX_ENCODE_BASE64_ERROR("W011", "base64加密错误", HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * 企业微信 base64解密错误
+     */
+    ENT_WX_DECODE_BASE64_ERROR("W012", "base64解密错误", HttpStatus.INTERNAL_SERVER_ERROR),
+    /**
+     * 企业微信 xml生成失败
+     */
+    ENT_WX_GEN_RETURN_XML_ERROR("W013", "xml生成失败", HttpStatus.INTERNAL_SERVER_ERROR),
+    ;
 
 
     private final String code;

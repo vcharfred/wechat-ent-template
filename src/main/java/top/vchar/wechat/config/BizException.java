@@ -25,6 +25,10 @@ public class BizException extends RuntimeException{
         super(message, cause);
     }
 
+    public BizException(ApiCode apiCode, Throwable cause) {
+        super(apiCode.getMsg(), cause);
+    }
+
     public BizException(ApiCode apiCode) {
         super(apiCode.getMsg());
         this.code = apiCode;
