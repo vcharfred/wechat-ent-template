@@ -1,6 +1,7 @@
 package top.vchar.wechat.util;
 
 import lombok.extern.slf4j.Slf4j;
+import top.vchar.wechat.bean.CallbackMsg;
 import top.vchar.wechat.bean.EntWxSuite;
 import top.vchar.wechat.config.BizException;
 import top.vchar.wechat.enums.ApiCode;
@@ -52,6 +53,10 @@ public class WxBizMsgCrypt {
 
     public WxBizMsgCrypt(EntWxSuite entWxSuite){
         this(entWxSuite.getToken(), entWxSuite.getEncodingAesKey(), entWxSuite.getReceiveId());
+    }
+
+    public WxBizMsgCrypt(EntWxSuite entWxSuite, String receiveId){
+        this(entWxSuite.getToken(), entWxSuite.getEncodingAesKey(), receiveId);
     }
 
     /**
@@ -178,6 +183,7 @@ public class WxBizMsgCrypt {
 
         // receiveId不相同的情况
         if (!fromReceiveId.equals(receiveId)) {
+            log.error("企业微信接收者corpId校验失败：需要的为：{}, 密文解密后的: {}", receiveId, fromReceiveId);
             throw new BizException(ApiCode.ENT_WX_VALIDATE_CORPID_ERROR);
         }
         return xmlContent;
@@ -243,6 +249,17 @@ public class WxBizMsgCrypt {
 
         // 解密
         return decrypt(encrypt[1].toString());
+    }
+
+    /**
+     * 检验消息的真实性，并且获取解密后的明文.
+     *
+     * @param callbackMsg 密文信息
+     * @return 返回明文
+     */
+    public String decryptMsg(CallbackMsg callbackMsg){
+        return decryptMsg(callbackMsg.getMsgSignature(), callbackMsg.getTimestamp()
+                , callbackMsg.getNonce(), callbackMsg.getBody());
     }
 
     /**

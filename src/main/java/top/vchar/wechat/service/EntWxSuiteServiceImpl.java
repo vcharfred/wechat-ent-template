@@ -1,11 +1,15 @@
 package top.vchar.wechat.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import top.vchar.wechat.bean.EntWxSuite;
+import top.vchar.wechat.bean.CallbackMsg;
+import top.vchar.wechat.config.BizException;
 import top.vchar.wechat.config.EntWxSuiteConfig;
+import top.vchar.wechat.enums.ApiCode;
 import top.vchar.wechat.util.WxBizMsgCrypt;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 
 /**
  * <p> 企业微信第三方应用业务逻辑 </p>
@@ -14,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * @version 1.0
  * @create_date 2022/7/15
  */
+@Slf4j
 @Service
 public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
 
@@ -34,20 +39,52 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
         String msgSignature = request.getParameter("msg_signature");
         String timestamp = request.getParameter("timestamp");
         String nonce = request.getParameter("nonce");
-        String echoStr = request.getParameter("echostr").replace(" ", "=");
+        String echoStr = request.getParameter("echostr").replace(" ", "+");
 
-        EntWxSuite entWxSuite = entWxSuiteConfig.getEntWxSuite(suitId);
-        WxBizMsgCrypt wxBizMsgCrypt = new WxBizMsgCrypt(entWxSuite);
+        WxBizMsgCrypt wxBizMsgCrypt =entWxSuiteConfig.getWxBizMsgCrypt(suitId);
         return wxBizMsgCrypt.verifyUrl(msgSignature, timestamp, nonce, echoStr);
     }
 
     @Override
     public void dataCallback(String suitId, HttpServletRequest request) {
+        CallbackMsg callbackMsg = getCallbackMsg(request);
+        log.info("收到企业微信数据回调:{}", callbackMsg);
+        WxBizMsgCrypt wxBizMsgCrypt = entWxSuiteConfig.getWxBizMsgCrypt(suitId, "");
+        String body = wxBizMsgCrypt.decryptMsg(callbackMsg);
+        log.info("企业微信数据回调解密结果：{}", body);
 
     }
 
     @Override
     public void commandCallback(String suitId, HttpServletRequest request) {
+        CallbackMsg callbackMsg = getCallbackMsg(request);
+        log.info("收到企业微信指令回调：{}", callbackMsg);
+        WxBizMsgCrypt wxBizMsgCrypt =entWxSuiteConfig.getWxBizMsgCrypt(suitId);
+        String body = wxBizMsgCrypt.decryptMsg(callbackMsg);
+        log.info("企业微信指令回调解密结果：{}", body);
 
     }
+
+    private CallbackMsg getCallbackMsg(HttpServletRequest request){
+        String msgSignature = request.getParameter("msg_signature");
+        String timestamp = request.getParameter("timestamp");
+        String nonce = request.getParameter("nonce");
+        StringBuilder body = new StringBuilder();
+        try(BufferedReader br=new BufferedReader(request.getReader())){
+            String str;
+            while ((str= br.readLine())!=null){
+                body.append(str);
+            }
+        }catch (Exception e){
+            log.error("读取企业微信数据回调body异常", e);
+            throw new BizException(ApiCode.SERVER_ERROR, "读取请求body异常");
+        }
+        return CallbackMsg.builder()
+                .msgSignature(msgSignature)
+                .timestamp(timestamp)
+                .nonce(nonce)
+                .body(body.toString())
+                .build();
+    }
+
 }

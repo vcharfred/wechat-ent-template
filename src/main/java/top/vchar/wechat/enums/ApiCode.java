@@ -24,12 +24,12 @@ public enum ApiCode {
     /**
      * 参数不正确
      */
-    PARAM_ERROR("W002", "参数不正确", HttpStatus.BAD_REQUEST),
+    PARAM_ERROR("W002", "参数不正确", HttpStatus.NOT_ACCEPTABLE),
 
     /**
      * 企业微信 签名验证错误
      */
-    ENT_WX_VALIDATE_SIGNATURE_ERROR("W003", "签名验证错误", HttpStatus.BAD_REQUEST),
+    ENT_WX_VALIDATE_SIGNATURE_ERROR("W003", "签名验证错误", HttpStatus.NOT_ACCEPTABLE),
     /**
      * 企业微信 xml解析失败
      */
@@ -45,7 +45,7 @@ public enum ApiCode {
     /**
      * 企业微信 corpid校验失败
      */
-    ENT_WX_VALIDATE_CORPID_ERROR("W007", "corpid校验失败", HttpStatus.BAD_REQUEST),
+    ENT_WX_VALIDATE_CORPID_ERROR("W007", "corpid校验失败", HttpStatus.NOT_ACCEPTABLE),
     /**
      * 企业微信 aes加密失败
      */
@@ -70,6 +70,11 @@ public enum ApiCode {
      * 企业微信 xml生成失败
      */
     ENT_WX_GEN_RETURN_XML_ERROR("W013", "xml生成失败", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    /**
+     * 企业微信 指令回调消息类型处理方式未实现
+     */
+    ENT_WX_COMMAND_ERROR("W014", "不支持的消息类型", HttpStatus.NOT_ACCEPTABLE),
     ;
 
 

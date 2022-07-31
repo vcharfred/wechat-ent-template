@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import top.vchar.wechat.bean.EntWxSuite;
+import top.vchar.wechat.util.WxBizMsgCrypt;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,14 @@ public class EntWxSuiteConfig {
         Optional<EntWxSuite> optional = suites.stream().filter(p->p.getSuiteId().equals(suiteId)).findAny();
         return optional.orElse(null);
     }
+
+    public WxBizMsgCrypt getWxBizMsgCrypt(String suiteId){
+        return new WxBizMsgCrypt(getEntWxSuite(suiteId));
+    }
+
+    public WxBizMsgCrypt getWxBizMsgCrypt(String suiteId, String receiveId){
+        return new WxBizMsgCrypt(getEntWxSuite(suiteId), receiveId);
+    }
+
+
 }
