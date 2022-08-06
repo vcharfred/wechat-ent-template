@@ -51,10 +51,6 @@ public class WxBizMsgCrypt {
         this.receiveId = receiveId;
     }
 
-    public WxBizMsgCrypt(EntWxSuite entWxSuite){
-        this(entWxSuite.getToken(), entWxSuite.getEncodingAesKey(), entWxSuite.getReceiveId());
-    }
-
     public WxBizMsgCrypt(EntWxSuite entWxSuite, String receiveId){
         this(entWxSuite.getToken(), entWxSuite.getEncodingAesKey(), receiveId);
     }
@@ -183,7 +179,7 @@ public class WxBizMsgCrypt {
 
         // receiveId不相同的情况
         if (!fromReceiveId.equals(receiveId)) {
-            log.error("企业微信接收者corpId校验失败：需要的为：{}, 密文解密后的: {}", receiveId, fromReceiveId);
+            log.error("企业微信接收者corpId校验失败：需要的为：{}, 密文解密后的: {}，解密后报文:{}", receiveId, fromReceiveId, xmlContent);
             throw new BizException(ApiCode.ENT_WX_VALIDATE_CORPID_ERROR);
         }
         return xmlContent;

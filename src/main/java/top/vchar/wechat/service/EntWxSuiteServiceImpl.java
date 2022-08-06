@@ -41,7 +41,8 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
         String nonce = request.getParameter("nonce");
         String echoStr = request.getParameter("echostr").replace(" ", "+");
 
-        WxBizMsgCrypt wxBizMsgCrypt =entWxSuiteConfig.getWxBizMsgCrypt(suitId);
+        log.info("收到回调验证通知: msgSignature:{}, timestamp:{}, nonce:{}, echostr:{}", msgSignature, timestamp, nonce, echoStr);
+        WxBizMsgCrypt wxBizMsgCrypt = entWxSuiteConfig.getWxBizMsgCrypt(suitId);
         return wxBizMsgCrypt.verifyUrl(msgSignature, timestamp, nonce, echoStr);
     }
 

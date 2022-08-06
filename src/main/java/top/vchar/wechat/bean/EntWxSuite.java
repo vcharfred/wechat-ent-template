@@ -20,6 +20,11 @@ public class EntWxSuite implements Serializable {
     private String suiteId;
 
     /**
+     * 应用secret
+     */
+    private String secret;
+
+    /**
      * 应用配置的token
      */
     private String token;
@@ -28,11 +33,6 @@ public class EntWxSuite implements Serializable {
      * 应用配置的aesKey
      */
     private String encodingAesKey;
-
-    /**
-     * 接收者ID
-     */
-    private String receiveId;
 
     /**
      * 所属企业ID

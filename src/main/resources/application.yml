@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 9001
   compression:
     enabled: true
     mime-types: application/json,application/xml,application/xhtml+xml,text/html,text/xml,text/plain
@@ -27,3 +27,8 @@ wx:
   ent:
     suites:
       - suiteId: ""
+        secret: ""
+        token: ""
+        encodingAesKey: ""
+        receiveId: ""
+        corpId: ""

@@ -31,12 +31,14 @@ public class EntWxSuiteConfig {
     }
 
     public WxBizMsgCrypt getWxBizMsgCrypt(String suiteId){
-        return new WxBizMsgCrypt(getEntWxSuite(suiteId));
+        return new WxBizMsgCrypt(getEntWxSuite(suiteId), "");
     }
 
     public WxBizMsgCrypt getWxBizMsgCrypt(String suiteId, String receiveId){
         return new WxBizMsgCrypt(getEntWxSuite(suiteId), receiveId);
     }
 
-
+    public void setSuites(List<EntWxSuite> suites) {
+        this.suites = suites;
+    }
 }
