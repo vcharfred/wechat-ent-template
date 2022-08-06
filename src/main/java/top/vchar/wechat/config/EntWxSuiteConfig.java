@@ -41,4 +41,14 @@ public class EntWxSuiteConfig {
     public void setSuites(List<EntWxSuite> suites) {
         this.suites = suites;
     }
+
+    public void updateSuiteTicket(String suiteId, String suiteTicket) {
+        if(StringUtils.isNotBlank(suiteId)){
+            suites.forEach(p->{
+                if(suiteId.equals(p.getSuiteId())){
+                    p.setSuiteTicket(suiteTicket);
+                }
+            });
+        }
+    }
 }
