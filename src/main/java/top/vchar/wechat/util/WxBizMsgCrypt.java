@@ -233,10 +233,10 @@ public class WxBizMsgCrypt {
 
         // 密钥，公众账号的app secret
         // 提取密文
-        Object[] encrypt = XMLParse.extract(postData);
+        String encrypt = XMLParse.extract(postData, "Encrypt");
 
         // 验证安全签名
-        String signature = getSHA1(token, timeStamp, nonce, encrypt[1].toString());
+        String signature = getSHA1(token, timeStamp, nonce, encrypt);
 
         // 和URL中的签名比较是否相等
         if (!signature.equals(msgSignature)) {
@@ -244,7 +244,7 @@ public class WxBizMsgCrypt {
         }
 
         // 解密
-        return decrypt(encrypt[1].toString());
+        return decrypt(encrypt);
     }
 
     /**

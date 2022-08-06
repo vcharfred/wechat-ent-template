@@ -1,14 +1,15 @@
 package top.vchar.wechat.util;
 
+import java.io.IOException;
 import java.io.StringReader;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import top.vchar.wechat.config.BizException;
 import top.vchar.wechat.enums.ApiCode;
 
@@ -20,14 +21,9 @@ import top.vchar.wechat.enums.ApiCode;
  * @create_date 2022/7/17
  */
 public class XMLParse {
-    /**
-     * 提取出xml数据包中的加密消息
-     * @param xmltext 待提取的xml字符串
-     * @return 提取出的加密消息字符串
-     */
-    public static Object[] extract(String xmltext) {
-        Object[] result = new Object[3];
-        try {
+
+    public static Element coverXml(String xmlText){
+        try{
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setValidating(false);
             dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -38,18 +34,24 @@ public class XMLParse {
             dbf.setExpandEntityReferences(false);
 
             DocumentBuilder db = dbf.newDocumentBuilder();
-            StringReader sr = new StringReader(xmltext);
+            StringReader sr = new StringReader(xmlText);
             InputSource is = new InputSource(sr);
             Document document = db.parse(is);
-
-            Element root = document.getDocumentElement();
-            NodeList nodeList = root.getElementsByTagName("Encrypt");
-            result[0] = 0;
-            result[1] = nodeList.item(0).getTextContent();
-            return result;
-        } catch (Exception e) {
+            return document.getDocumentElement();
+        }catch (ParserConfigurationException | IOException | SAXException e) {
             throw new BizException(ApiCode.ENT_WX_PARSE_XML_ERROR, e);
         }
+    }
+
+    /**
+     * 提取出xml数据包中的加密消息
+     * @param xmlText 待提取的xml字符串
+     * @param key xml的key
+     * @return 提取出的加密消息字符串
+     */
+    public static String extract(String xmlText, String key) {
+        Element root = coverXml(xmlText);
+        return getXmlValue(root, key);
     }
 
     /**

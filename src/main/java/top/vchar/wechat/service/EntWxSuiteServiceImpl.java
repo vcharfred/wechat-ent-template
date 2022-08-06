@@ -7,6 +7,7 @@ import top.vchar.wechat.config.BizException;
 import top.vchar.wechat.config.EntWxSuiteConfig;
 import top.vchar.wechat.enums.ApiCode;
 import top.vchar.wechat.util.WxBizMsgCrypt;
+import top.vchar.wechat.util.XMLParse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -50,10 +51,10 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
     public void dataCallback(String suitId, HttpServletRequest request) {
         CallbackMsg callbackMsg = getCallbackMsg(request);
         log.info("收到企业微信数据回调:{}", callbackMsg);
-        WxBizMsgCrypt wxBizMsgCrypt = entWxSuiteConfig.getWxBizMsgCrypt(suitId, "");
+        String toUserName = XMLParse.extract(callbackMsg.getBody(), "ToUserName");
+        WxBizMsgCrypt wxBizMsgCrypt = entWxSuiteConfig.getWxBizMsgCrypt(suitId, toUserName);
         String body = wxBizMsgCrypt.decryptMsg(callbackMsg);
         log.info("企业微信数据回调解密结果：{}", body);
-
     }
 
     @Override
@@ -63,9 +64,15 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
         WxBizMsgCrypt wxBizMsgCrypt =entWxSuiteConfig.getWxBizMsgCrypt(suitId);
         String body = wxBizMsgCrypt.decryptMsg(callbackMsg);
         log.info("企业微信指令回调解密结果：{}", body);
+        // 根据消息类型处理对应的消息
 
     }
 
+    /**
+     * 解析请求报文
+     * @param request 请求对象
+     * @return 返回请求报文
+     */
     private CallbackMsg getCallbackMsg(HttpServletRequest request){
         String msgSignature = request.getParameter("msg_signature");
         String timestamp = request.getParameter("timestamp");

@@ -37,7 +37,7 @@ public class EntWxSuiteController {
         }else if(HttpMethod.POST.matches(request.getMethod())){
             this.entWxSuiteService.dataCallback(suitId, request);
             return "success";
-        }else {
+        } else {
             return "success";
         }
     }
