@@ -39,9 +39,4 @@ public class EntWxSuite implements Serializable {
      */
     private String corpId;
 
-    /**
-     * 应用的ticket
-     */
-    private String suiteTicket;
-
 }

@@ -168,4 +168,8 @@ public class RedisHelper {
         return false;
     }
 
+    public boolean lock(String key, long lockTime){
+        return setNx(key, "1", lockTime);
+    }
+
 }

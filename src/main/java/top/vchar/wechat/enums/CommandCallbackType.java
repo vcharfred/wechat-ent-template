@@ -14,7 +14,11 @@ public enum CommandCallbackType {
     /**
      * suite_ticket回调
      */
-    SUITE_TICKET("suite_ticket");
+    SUITE_TICKET("suite_ticket"),
+    /**
+     * 首次添加应用
+     */
+    CREATE_AUTH("create_auth");
 
     private final String command;
 
