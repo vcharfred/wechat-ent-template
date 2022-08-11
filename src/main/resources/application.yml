@@ -23,6 +23,9 @@ spring:
         max-active: 10
         max-wait: 1000
       shutdown-timeout: 200
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
 wx:
   ent:
     suites:
@@ -30,5 +33,4 @@ wx:
         secret: ""
         token: ""
         encodingAesKey: ""
-        receiveId: ""
         corpId: ""
