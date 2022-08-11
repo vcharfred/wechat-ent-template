@@ -27,6 +27,12 @@ public interface EntWxClient {
     String getSuiteToken(@RequestBody Map<String, String> map);
 
 
+    /**
+     * 获取企业永久授权码
+     * @param suiteToken 应用token
+     * @param params 参数
+     * @return 返回永久授权码
+     */
     @PostMapping("/cgi-bin/service/get_permanent_code?suite_access_token={suiteToken}")
     String getPermanentCode(@PathVariable("suiteToken") String suiteToken, @RequestBody Map<String, String> params);
 

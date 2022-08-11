@@ -75,6 +75,11 @@ public enum ApiCode {
      * 企业微信 指令回调消息类型处理方式未实现
      */
     ENT_WX_COMMAND_ERROR("W014", "不支持的消息类型", HttpStatus.NOT_ACCEPTABLE),
+
+    /**
+     * 获取 suite_access_token失败
+     */
+    ENT_WX_ACCESS_TOKEN_ERROR("W015", "获取suite_access_token失败", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
 
