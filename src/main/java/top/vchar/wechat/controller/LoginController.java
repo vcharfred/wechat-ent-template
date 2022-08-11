@@ -24,17 +24,10 @@ public class LoginController {
     @Autowired
     private IEntWxSuiteService entWxSuiteService;
 
-    private final static String DOMAIN = "https://blog.vchar.top";
-
-    @GetMapping("/login")
-    public ModelAndView login(@RequestParam(value = "suiteId", required = false) String suiteId, @RequestParam(value = "code", required = false) String code){
-        ModelAndView mv=new ModelAndView();
-        mv.addObject("suiteId",suiteId);
-        mv.addObject("code", code);
-        mv.addObject("login", DOMAIN+"/wechat/doLogin?suiteId="+suiteId+"&code="+code);
-        mv.setViewName("index.html");
-        return mv;
-    }
+    /**
+     * 域名
+     */
+    private final static String DOMAIN = "your domain";
 
     /**
      * 企业微信授权链接拼接
@@ -51,6 +44,22 @@ public class LoginController {
         return mv;
     }
 
+    /**
+     * 授权后回跳地址
+     */
+    @GetMapping("/login")
+    public ModelAndView login(@RequestParam(value = "suiteId", required = false) String suiteId, @RequestParam(value = "code", required = false) String code){
+        ModelAndView mv=new ModelAndView();
+        mv.addObject("suiteId",suiteId);
+        mv.addObject("code", code);
+        mv.addObject("login", DOMAIN+"/wechat/doLogin?suiteId="+suiteId+"&code="+code);
+        mv.setViewName("index.html");
+        return mv;
+    }
+
+    /**
+     * 执行登录换取用户信息
+     */
     @ResponseBody
     @GetMapping("/doLogin")
     public String getUserinfo3rd(@RequestParam("suiteId") String suiteId, @RequestParam("code") String code){

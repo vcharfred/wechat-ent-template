@@ -78,7 +78,8 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
 
     @Override
     public String getUserinfo3rd(String suiteId, String code) {
-        return this.entWxClient.getUserinfo3rd(suiteId, code);
+        log.info("拉取用户[{}]的信息", code);
+        return this.entWxClient.getUserinfo3rd(entWxSuiteConfig.getSuiteAccessToken(suiteId), code);
     }
 
     /**

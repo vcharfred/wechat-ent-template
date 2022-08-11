@@ -12,7 +12,7 @@ import java.util.Map;
  * @version 1.0
  * @create_date 2022/8/8
  */
-@FeignClient(name = "entWxClient", path = "https://qyapi.weixin.qq.com")
+@FeignClient(name = "entWxClient", url = "https://qyapi.weixin.qq.com")
 public interface EntWxClient {
 
     /**
