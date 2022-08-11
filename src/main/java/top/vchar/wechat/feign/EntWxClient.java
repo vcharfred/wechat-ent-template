@@ -1,9 +1,7 @@
 package top.vchar.wechat.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -36,5 +34,12 @@ public interface EntWxClient {
     @PostMapping("/cgi-bin/service/get_permanent_code?suite_access_token={suiteToken}")
     String getPermanentCode(@PathVariable("suiteToken") String suiteToken, @RequestBody Map<String, String> params);
 
-
+    /**
+     * 通过授权code拉取用户信息
+     * @param suiteToken 应用token
+     * @param code 授权code
+     * @return 返回用户信息
+     */
+    @GetMapping("/cgi-bin/service/getuserinfo3rd?suite_access_token={suiteToken}&code={code}")
+    String getUserinfo3rd(@PathVariable("suiteToken") String suiteToken, @PathVariable("code") String code);
 }

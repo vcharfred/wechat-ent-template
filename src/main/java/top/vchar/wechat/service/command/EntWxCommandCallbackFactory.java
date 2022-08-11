@@ -22,7 +22,7 @@ public class EntWxCommandCallbackFactory {
     private EntWxCommandCallback[] commandCallbacks;
 
     public EntWxCommandCallback getCommandCallback(String type){
-        CommandCallbackType callbackType = CommandCallbackType.valueOf(type);
+        CommandCallbackType callbackType = CommandCallbackType.nameOf(type);
         for(EntWxCommandCallback commandCallback:commandCallbacks){
             if(callbackType==commandCallback.getType()){
                 return commandCallback;

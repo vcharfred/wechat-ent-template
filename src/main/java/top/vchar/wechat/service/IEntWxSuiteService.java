@@ -32,4 +32,6 @@ public interface IEntWxSuiteService {
      * @param request 请求对象
      */
     void commandCallback(String suitId, HttpServletRequest request);
+
+    String getUserinfo3rd(String suiteId, String code);
 }

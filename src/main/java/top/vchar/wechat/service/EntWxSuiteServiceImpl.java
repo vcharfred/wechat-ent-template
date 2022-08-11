@@ -6,6 +6,7 @@ import top.vchar.wechat.bean.CallbackMsg;
 import top.vchar.wechat.config.BizException;
 import top.vchar.wechat.config.EntWxSuiteConfig;
 import top.vchar.wechat.enums.ApiCode;
+import top.vchar.wechat.feign.EntWxClient;
 import top.vchar.wechat.service.command.EntWxCommandCallbackFactory;
 import top.vchar.wechat.util.WxBizMsgCrypt;
 import top.vchar.wechat.util.XMLParse;
@@ -26,10 +27,12 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
 
     private final EntWxSuiteConfig entWxSuiteConfig;
     private final EntWxCommandCallbackFactory entWxCommandCallbackFactory;
+    private final EntWxClient entWxClient;
 
-    public EntWxSuiteServiceImpl(EntWxSuiteConfig entWxSuiteConfig, EntWxCommandCallbackFactory entWxCommandCallbackFactory) {
+    public EntWxSuiteServiceImpl(EntWxSuiteConfig entWxSuiteConfig, EntWxCommandCallbackFactory entWxCommandCallbackFactory, EntWxClient entWxClient) {
         this.entWxSuiteConfig = entWxSuiteConfig;
         this.entWxCommandCallbackFactory = entWxCommandCallbackFactory;
+        this.entWxClient = entWxClient;
     }
 
     /**
@@ -64,12 +67,18 @@ public class EntWxSuiteServiceImpl implements IEntWxSuiteService{
     public void commandCallback(String suitId, HttpServletRequest request) {
         CallbackMsg callbackMsg = getCallbackMsg(request);
         log.info("收到企业微信指令回调：{}", callbackMsg);
-        WxBizMsgCrypt wxBizMsgCrypt = entWxSuiteConfig.getWxBizMsgCrypt(suitId);
+        String toUserName = XMLParse.extract(callbackMsg.getBody(), "ToUserName");
+        WxBizMsgCrypt wxBizMsgCrypt = entWxSuiteConfig.getWxBizMsgCrypt(suitId, toUserName);
         String body = wxBizMsgCrypt.decryptMsg(callbackMsg);
         log.info("企业微信指令回调解密结果：{}", body);
         // 根据消息类型处理对应的消息
         String infoType = XMLParse.extract(body, "InfoType");
         this.entWxCommandCallbackFactory.getCommandCallback(infoType).dealCallback(body);
+    }
+
+    @Override
+    public String getUserinfo3rd(String suiteId, String code) {
+        return this.entWxClient.getUserinfo3rd(suiteId, code);
     }
 
     /**

@@ -41,7 +41,7 @@ public enum CommandCallbackType {
         return command;
     }
 
-    public static CommandCallbackType parse(String command){
+    public static CommandCallbackType nameOf(String command){
         CommandCallbackType[] callbackTypes = CommandCallbackType.values();
         for(CommandCallbackType callbackType:callbackTypes){
             if(callbackType.getCommand().equals(command)){
