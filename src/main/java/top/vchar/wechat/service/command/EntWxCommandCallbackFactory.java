@@ -1,5 +1,6 @@
 package top.vchar.wechat.service.command;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.vchar.wechat.config.BizException;
@@ -13,6 +14,7 @@ import top.vchar.wechat.enums.CommandCallbackType;
  * @version 1.0
  * @create_date 2022/7/24
  */
+@Slf4j
 @Service
 public class EntWxCommandCallbackFactory {
 
@@ -26,6 +28,7 @@ public class EntWxCommandCallbackFactory {
                 return commandCallback;
             }
         }
+        log.info("未知的通知回调类型:{} ", type);
         throw new BizException(ApiCode.ENT_WX_COMMAND_ERROR);
     }
 

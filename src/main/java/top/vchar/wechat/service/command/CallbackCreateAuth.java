@@ -30,7 +30,7 @@ public class CallbackCreateAuth implements EntWxCommandCallback {
 
     @Override
     public CommandCallbackType getType() {
-        return CommandCallbackType.SUITE_TICKET;
+        return CommandCallbackType.CREATE_AUTH;
     }
 
     @Override

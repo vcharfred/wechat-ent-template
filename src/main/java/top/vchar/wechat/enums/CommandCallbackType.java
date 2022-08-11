@@ -18,7 +18,18 @@ public enum CommandCallbackType {
     /**
      * 首次添加应用
      */
-    CREATE_AUTH("create_auth");
+    CREATE_AUTH("create_auth"),
+
+    /**
+     * 企业授权变更
+     */
+    CHANGE_AUTH("change_auth"),
+
+    /**
+     * 企业授权取消
+     */
+    CANCEL_AUTH("cancel_auth"),
+    ;
 
     private final String command;
 
